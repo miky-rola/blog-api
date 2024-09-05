@@ -21,3 +21,6 @@ utoipa-swagger-ui = { version = "3.0", features = ["actix-web"] }
 version = "0.11"
 features = ["json"]
 
+[target.x86_64-pc-windows-msvc]
+linker = "link.exe"
+
