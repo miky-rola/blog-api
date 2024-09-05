@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::models::{User, Blog, Comment, Like};
 use crate::orm::{create_user, create_blog, create_comment, create_like, get_user, get_blog, update_blog, delete_blog};
 use crate::db::DbPool;
+use crate::api_response::ApiResponse;
 
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -32,11 +33,11 @@ pub fn config(cfg: &mut web::ServiceConfig) {
 )]
 async fn create_user_handler(user: web::Json<User>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        create_user(&conn, &user.username, &user.email, &user.password_hash)
+    let result = web::block(move |mut conn| {
+        create_user(&mut conn, &user.username, &user.email, &user.password_hash)
     }).await;
     match result {
-        Ok(user) => HttpResponse::Ok().json(user),
+        Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to create user"})),
     }
 }
@@ -55,11 +56,11 @@ async fn create_user_handler(user: web::Json<User>, pool: web::Data<DbPool>) -> 
 )]
 async fn get_user_by_id(user_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        get_user(&conn, user_id.into_inner())
+    let result = web::block(move |mut conn| {
+        get_user(&mut conn, user_id.into_inner())
     }).await;
     match result {
-        Ok(user) => HttpResponse::Ok().json(user),
+        Ok(user) => HttpResponse::Ok().json(ApiResponse::success(user)),
         Err(_) => HttpResponse::NotFound().json(json!({"status": "error", "message": "User not found"})),
     }
 }
@@ -76,11 +77,11 @@ async fn get_user_by_id(user_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> im
 )]
 async fn create_blog_handler(blog: web::Json<Blog>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        create_blog(&conn, &blog.title, &blog.content, blog.author_id)
+    let result = web::block(move |mut conn| {
+        create_blog(&mut conn, &blog.title, &blog.content, blog.author_id)
     }).await;
     match result {
-        Ok(blog) => HttpResponse::Ok().json(blog),
+        Ok(blog) => HttpResponse::Ok().json(ApiResponse::success(blog)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to create blog"})),
     }
 }
@@ -99,11 +100,11 @@ async fn create_blog_handler(blog: web::Json<Blog>, pool: web::Data<DbPool>) -> 
 )]
 async fn get_blog_by_id(blog_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        get_blog(&conn, blog_id.into_inner())
+    let result = web::block(move |mut conn| {
+        get_blog(&mut conn, blog_id.into_inner())
     }).await;
     match result {
-        Ok(blog) => HttpResponse::Ok().json(blog),
+        Ok(blog) => HttpResponse::Ok().json(ApiResponse::success(blog)),
         Err(_) => HttpResponse::NotFound().json(json!({"status": "error", "message": "Blog not found"})),
     }
 }
@@ -124,11 +125,11 @@ async fn get_blog_by_id(blog_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> im
 )]
 async fn update_blog_by_id(blog_id: web::Path<Uuid>, blog: web::Json<Blog>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        update_blog(&conn, blog_id.into_inner(), &blog.title, &blog.content)
+    let result = web::block(move |mut conn| {
+        update_blog(&mut conn, blog_id.into_inner(), &blog.title, &blog.content)
     }).await;
     match result {
-        Ok(blog) => HttpResponse::Ok().json(blog),
+        Ok(blog) => HttpResponse::Ok().json(ApiResponse::success(blog)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to update blog"})),
     }
 }
@@ -148,8 +149,8 @@ async fn update_blog_by_id(blog_id: web::Path<Uuid>, blog: web::Json<Blog>, pool
 )]
 async fn delete_blog_by_id(blog_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        delete_blog(&conn, blog_id.into_inner())
+    let result = web::block(move |mut conn| {
+        delete_blog(&mut conn, blog_id.into_inner())
     }).await;
     match result {
         Ok(_) => HttpResponse::Ok().json(json!({"status": "success", "message": "Blog deleted successfully"})),
@@ -169,11 +170,11 @@ async fn delete_blog_by_id(blog_id: web::Path<Uuid>, pool: web::Data<DbPool>) ->
 )]
 async fn create_comment_handler(comment: web::Json<Comment>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        create_comment(&conn, comment.blog_id, comment.user_id, &comment.content, comment.parent_comment_id)
+    let result = web::block(move |mut conn| {
+        create_comment(&mut conn, comment.blog_id, comment.user_id, &comment.content, comment.parent_comment_id)
     }).await;
     match result {
-        Ok(comment) => HttpResponse::Ok().json(comment),
+        Ok(comment) => HttpResponse::Ok().json(ApiResponse::success(comment)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to create comment"})),
     }
 }
@@ -192,11 +193,11 @@ async fn create_comment_handler(comment: web::Json<Comment>, pool: web::Data<DbP
 )]
 async fn get_comment_by_id(comment_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        get_comment(&conn, comment_id.into_inner())
+    let result = web::block(move |mut conn| {
+        get_comment(&mut conn, comment_id.into_inner())
     }).await;
     match result {
-        Ok(comment) => HttpResponse::Ok().json(comment),
+        Ok(comment) => HttpResponse::Ok().json(ApiResponse::success(comment)),
         Err(_) => HttpResponse::NotFound().json(json!({"status": "error", "message": "Comment not found"})),
     }
 }
@@ -217,11 +218,11 @@ async fn get_comment_by_id(comment_id: web::Path<Uuid>, pool: web::Data<DbPool>)
 )]
 async fn update_comment_handler(comment_id: web::Path<Uuid>, comment: web::Json<Comment>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        update_comment(&conn, comment_id.into_inner(), &comment.content)
+    let result = web::block(move |mut conn| {
+        update_comment(&mut conn, comment_id.into_inner(), &comment.content)
     }).await;
     match result {
-        Ok(comment) => HttpResponse::Ok().json(comment),
+        Ok(comment) => HttpResponse::Ok().json(ApiResponse::success(comment)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to update comment"})),
     }
 }
@@ -241,8 +242,8 @@ async fn update_comment_handler(comment_id: web::Path<Uuid>, comment: web::Json<
 )]
 async fn delete_comment_handler(comment_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        delete_comment(&conn, comment_id.into_inner())
+    let result = web::block(move |mut conn| {
+        delete_comment(&mut conn, comment_id.into_inner())
     }).await;
     match result {
         Ok(_) => HttpResponse::Ok().json(json!({"status": "success", "message": "Comment deleted successfully"})),
@@ -262,11 +263,11 @@ async fn delete_comment_handler(comment_id: web::Path<Uuid>, pool: web::Data<DbP
 )]
 async fn create_like_handler(like: web::Json<Like>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        create_like(&conn, like.blog_id, like.user_id)
+    let result = web::block(move |mut conn| {
+        create_like(&mut conn, like.blog_id, like.user_id)
     }).await;
     match result {
-        Ok(like) => HttpResponse::Ok().json(like),
+        Ok(like) => HttpResponse::Ok().json(ApiResponse::success(like)),
         Err(_) => HttpResponse::InternalServerError().json(json!({"status": "error", "message": "Failed to create like"})),
     }
 }
@@ -285,11 +286,11 @@ async fn create_like_handler(like: web::Json<Like>, pool: web::Data<DbPool>) -> 
 )]
 async fn get_like_by_id(like_id: web::Path<Uuid>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let result = web::block(move || {
-        get_like(&conn, like_id.into_inner())
+    let result = web::block(move |mut conn| {
+        get_like(&mut conn, like_id.into_inner())
     }).await;
     match result {
-        Ok(like) => HttpResponse::Ok().json(like),
+        Ok(like) => HttpResponse::Ok().json(ApiResponse::success(like)),
         Err(_) => HttpResponse::NotFound().json(json!({"status": "error", "message": "Like not found"})),
     }
 }
