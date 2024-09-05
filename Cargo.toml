@@ -14,7 +14,7 @@ uuid = { version = "1.3", features = ["serde", "v4"] }
 jsonwebtoken = "8.3"
 bcrypt = "0.14"
 env_logger = "0.10"
-utoipa = { version = "3.0", features = ["uuid", "chrono"] }
+utoipa = { version = "3.5.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "3.0", features = ["actix-web"] }
 
 [dependencies.reqwest]

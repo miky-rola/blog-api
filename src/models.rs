@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use utoipa::ToSchema;
 use diesel::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable, ToSchema)]
 #[diesel(table_name = crate::schema::users)]
 pub struct User {
     pub id: Uuid,
@@ -13,7 +14,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable, ToSchema)]
 #[diesel(table_name = crate::schema::blogs)]
 pub struct Blog {
     pub id: Uuid,
@@ -24,7 +25,7 @@ pub struct Blog {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable, ToSchema)]
 #[diesel(table_name = crate::schema::comments)]
 pub struct Comment {
     pub id: Uuid,
@@ -35,7 +36,7 @@ pub struct Comment {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable, ToSchema)]
 #[diesel(table_name = crate::schema::likes)]
 pub struct Like {
     pub id: Uuid,

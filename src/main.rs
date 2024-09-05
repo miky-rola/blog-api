@@ -11,7 +11,7 @@ mod db;
 mod api_response;
 
 use api_doc::ApiDoc;
-use db::DbPool;
+// use db::DbPool;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
