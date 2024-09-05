@@ -3,7 +3,7 @@ use diesel::pg::PgConnection;
 use uuid::Uuid;
 use crate::models::{User, Blog, Comment, Like};
 use crate::schema::{users, blogs, comments, likes};
-use crate::orm::{get_comment, update_comment, delete_comment, get_like};
+// use crate::orm::{ update_comment, delete_comment, get_like};
 
 pub fn create_user(conn: &mut PgConnection, username: &str, email: &str, password_hash: &str) -> Result<User, diesel::result::Error> {
     let new_user = NewUser {
@@ -115,7 +115,7 @@ pub fn delete_like(conn: &mut PgConnection, like_id: Uuid) -> Result<usize, dies
 }
 
 #[derive(Insertable)]
-#[table_name="users"]
+#[diesel(table_name = users)]
 struct NewUser<'a> {
     username: &'a str,
     email: &'a str,
@@ -123,7 +123,7 @@ struct NewUser<'a> {
 }
 
 #[derive(Insertable)]
-#[table_name="blogs"]
+#[diesel(table_name = blogs)]
 struct NewBlog<'a> {
     title: &'a str,
     content: &'a str,
@@ -131,7 +131,7 @@ struct NewBlog<'a> {
 }
 
 #[derive(Insertable)]
-#[table_name="comments"]
+#[diesel(table_name = comments)]
 struct NewComment<'a> {
     blog_id: Uuid,
     user_id: Uuid,
@@ -140,7 +140,7 @@ struct NewComment<'a> {
 }
 
 #[derive(Insertable)]
-#[table_name="likes"]
+#[diesel(table_name = likes)]
 struct NewLike {
     blog_id: Uuid,
     user_id: Uuid,

@@ -3,7 +3,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::models::{User, Blog, Comment, Like};
-use crate::orm::{create_user, create_blog, create_comment, create_like, get_user, get_blog, update_blog, delete_blog};
+use crate::orm::{create_user, create_blog, create_comment, create_like, get_user, get_blog, update_blog, delete_blog, get_comment, update_comment, delete_comment, get_like};
 use crate::db::DbPool;
 use crate::api_response::ApiResponse;
 
@@ -16,8 +16,8 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .route("/blogs/{id}", web::get().to(get_blog_by_id))
             .route("/blogs/{id}", web::put().to(update_blog_by_id))
             .route("/blogs/{id}", web::delete().to(delete_blog_by_id))
-            .route("/comments", web::post().to(add_comment))
-            .route("/likes", web::post().to(add_like))
+            .route("/comments", web::post().to(create_comment_handler))
+            .route("/likes", web::post().to(create_like_handler))
     );
 }
 

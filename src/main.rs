@@ -8,6 +8,7 @@ mod orm;
 mod routes;
 mod api_doc;
 mod db;
+mod api_response;
 
 use api_doc::ApiDoc;
 use db::DbPool;
