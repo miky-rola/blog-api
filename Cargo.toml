@@ -21,6 +21,13 @@ utoipa-swagger-ui = { version = "3.0", features = ["actix-web"] }
 version = "0.11"
 features = ["json"]
 
+[dependencies.diesel]
+version = "2.0.0"
+features = ["postgres", "r2d2", "uuid", "chrono"]
+
 [target.x86_64-pc-windows-msvc]
 linker = "link.exe"
 
+[dependencies.libpq-sys]
+version = "0.12.0"
+features = ["static"]
