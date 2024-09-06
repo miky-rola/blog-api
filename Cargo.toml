@@ -16,11 +16,8 @@ bcrypt = "0.14"
 env_logger = "0.10"
 utoipa = { version = "3.5.0", features = ["chrono", "uuid"] }
 utoipa-swagger-ui = { version = "3.0", features = ["actix-web"] }
+diesel = {version = "2.2.0", features = ["postgres", "r2d2", "uuid", "chrono"]}
 
 [dependencies.reqwest]
 version = "0.11"
 features = ["json"]
-
-[dependencies.diesel]
-version = "2.0.0"
-features = ["postgres", "r2d2", "uuid", "chrono"]
